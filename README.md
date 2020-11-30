@@ -1,6 +1,6 @@
 # Covid Tracker App
 
-A Covid Tracker App created with flutter. This app uses the API: https://covidtracking.com/data/api
+A Covid Tracker App which monitors cases in the US created with flutter. This app uses the API: https://covidtracking.com/data/api
 
 ## Screen
 
