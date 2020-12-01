@@ -30,35 +30,38 @@ class _MyAppState extends State<MyApp> {
         future: getCovidData(),
         builder: (context, snapshot) {
           if (snapshot.hasData)
-            return ListView.builder(
-                itemCount: snapshot.data.length,
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 7),
-                itemExtent: 120,
-                itemBuilder: (context, index) => covidWG(
-                    snapshot.data[index]['dateChecked'].substring(0, 10),
-                    MoneyMaskedTextController(
-                            initialValue:
-                                snapshot.data[index]['positive'].toDouble(),
-                            decimalSeparator: '',
-                            thousandSeparator: '.',
-                            precision: 0)
-                        .text,
-                    MoneyMaskedTextController(
-                            initialValue:
-                                snapshot.data[index]['negative'].toDouble(),
-                            decimalSeparator: '',
-                            thousandSeparator: '.',
-                            precision: 0)
-                        .text,
-                    MoneyMaskedTextController(
-                            initialValue:
-                                snapshot.data[index]['death'].toDouble(),
-                            decimalSeparator: '',
-                            thousandSeparator: '.',
-                            precision: 0)
-                        .text,
-                    snapshot.data[index]['date'].toString(),
-                    context));
+            return Scrollbar(
+              radius: Radius.circular(10),
+              child: ListView.builder(
+                  itemCount: snapshot.data.length,
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+                  itemExtent: 120,
+                  itemBuilder: (context, index) => covidWG(
+                      snapshot.data[index]['dateChecked'].substring(0, 10),
+                      MoneyMaskedTextController(
+                              initialValue:
+                                  snapshot.data[index]['positive'].toDouble(),
+                              decimalSeparator: '',
+                              thousandSeparator: '.',
+                              precision: 0)
+                          .text,
+                      MoneyMaskedTextController(
+                              initialValue:
+                                  snapshot.data[index]['negative'].toDouble(),
+                              decimalSeparator: '',
+                              thousandSeparator: '.',
+                              precision: 0)
+                          .text,
+                      MoneyMaskedTextController(
+                              initialValue:
+                                  snapshot.data[index]['death'].toDouble(),
+                              decimalSeparator: '',
+                              thousandSeparator: '.',
+                              precision: 0)
+                          .text,
+                      snapshot.data[index]['date'].toString(),
+                      context)),
+            );
           else {
             return Center(
               child: CircularProgressIndicator(),
