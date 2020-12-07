@@ -19,6 +19,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   int statesSelect = 1;
   String url = 'https://api.covidtracking.com/v1/us/daily.json';
+  String dateSaved =
+      ''; // Data precedente per non stampare lo stesso giorno più volte
 
   Widget statesWG(String title, int index, BuildContext context) {
     return Padding(
@@ -27,20 +29,27 @@ class _MyAppState extends State<MyApp> {
         onTap: () {
           setState(() {
             statesSelect = index;
-            if (index == 3)
-              url =
-                  'https://api.apify.com/v2/datasets/CUdKmb25Z3HjkoDiN/items?format=json&clean=1';
-            else if (index == 2)
-              url =
-                  'https://api.apify.com/v2/datasets/K1mXdufnpvr53AFk6/items?format=json&clean=1';
-            else if (index == 5)
-              url =
-                  'https://api.apify.com/v2/datasets/ugfJOQkPhQ0fvLYzN/items?format=json&clean=1';
-            else if (index == 4)
-              url =
-                  'https://api.apify.com/v2/datasets/LQHrXhGe0EhnCFeei/items?format=json&clean=1';
-            else if (index == 1)
-              url = 'https://api.covidtracking.com/v1/us/daily.json';
+            switch (index) {
+              case 1:
+                url = 'https://api.covidtracking.com/v1/us/daily.json';
+                break;
+              case 2:
+                url =
+                    'https://api.apify.com/v2/datasets/K1mXdufnpvr53AFk6/items?format=json&clean=1';
+                break;
+              case 3:
+                url =
+                    'https://api.apify.com/v2/datasets/CUdKmb25Z3HjkoDiN/items?format=json&clean=1';
+                break;
+              case 4:
+                url =
+                    'https://api.apify.com/v2/datasets/LQHrXhGe0EhnCFeei/items?format=json&clean=1';
+                break;
+              case 5:
+                url =
+                    'https://api.apify.com/v2/datasets/ugfJOQkPhQ0fvLYzN/items?format=json&clean=1';
+                break;
+            }
           });
         },
         child: Container(
@@ -66,6 +75,81 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
+  Widget getDataDay(AsyncSnapshot<dynamic> snapshot, int index) {
+    if (statesSelect == 1)
+      return covidWG(
+          ['Positive', 'Negative', 'Death'],
+          index,
+          'US',
+          snapshot.data[index]['dateChecked'].substring(0, 10),
+          MoneyMaskedTextController(
+                  initialValue: snapshot.data[index]['positive'].toDouble(),
+                  decimalSeparator: '',
+                  thousandSeparator: '.',
+                  precision: 0)
+              .text,
+          MoneyMaskedTextController(
+                  initialValue: snapshot.data[index]['negative'].toDouble(),
+                  decimalSeparator: '',
+                  thousandSeparator: '.',
+                  precision: 0)
+              .text,
+          MoneyMaskedTextController(
+                  initialValue: snapshot.data[index]['death'].toDouble(),
+                  decimalSeparator: '',
+                  thousandSeparator: '.',
+                  precision: 0)
+              .text,
+          snapshot.data[index]['date'].toString(),
+          context);
+    else if (statesSelect == 2) {
+      index = snapshot.data.length - index - 1;
+      // There are a couple of junk data
+      if (snapshot.data[index]['lastUpdatedAtApify'] == null ||
+          !(snapshot.data[index]['deceased'] is int) ||
+          index == 547 ||
+          index < 45) {
+        return Container();
+      }
+      dateSaved = index >= 1
+          ? snapshot.data[index - 1]['lastUpdatedAtApify'].substring(0, 10)
+          : '';
+      return snapshot.data[index]['lastUpdatedAtApify'].substring(0, 10) !=
+              dateSaved
+          ? snapshot.data[index]['infected'] != null
+              ? covidWG(
+                  ['Positive', 'Daily Confirmed', 'Death'],
+                  index,
+                  'UK',
+                  snapshot.data[index]['lastUpdatedAtApify'].substring(0, 10),
+                  MoneyMaskedTextController(
+                          initialValue:
+                              snapshot.data[index]['infected'].toDouble(),
+                          decimalSeparator: '',
+                          thousandSeparator: '.',
+                          precision: 0)
+                      .text,
+                  MoneyMaskedTextController(
+                          initialValue:
+                              snapshot.data[index]['dailyConfirmed'].toDouble(),
+                          decimalSeparator: '',
+                          thousandSeparator: '.',
+                          precision: 0)
+                      .text,
+                  MoneyMaskedTextController(
+                          initialValue:
+                              snapshot.data[index]['deceased'].toDouble(),
+                          decimalSeparator: '',
+                          thousandSeparator: '.',
+                          precision: 0)
+                      .text,
+                  '',
+                  context)
+              : Container()
+          : Container();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,7 +162,6 @@ class _MyAppState extends State<MyApp> {
       body: FutureBuilder(
         future: getCovidData(url),
         builder: (context, snapshot) {
-          print(snapshot.connectionState);
           if (snapshot.connectionState == ConnectionState.done)
             return Scrollbar(
                 radius: Radius.circular(10),
@@ -87,42 +170,22 @@ class _MyAppState extends State<MyApp> {
                   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 7),
                   itemBuilder: (context, index) {
                     if (index == 0)
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      return Column(
                         children: [
-                          statesWG('US', 1, context),
-                          statesWG('UK', 2, context),
-                          statesWG('IT', 3, context),
-                          statesWG('CH', 4, context),
-                          statesWG('JK', 5, context),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              statesWG('US', 1, context),
+                              statesWG('UK', 2, context),
+                              statesWG('IT', 3, context),
+                              statesWG('CH', 4, context),
+                              statesWG('JP', 5, context),
+                            ],
+                          ),
+                          getDataDay(snapshot, index)
                         ],
                       );
-
-                    return covidWG(
-                        snapshot.data[index]['dateChecked'].substring(0, 10),
-                        MoneyMaskedTextController(
-                                initialValue:
-                                    snapshot.data[index]['positive'].toDouble(),
-                                decimalSeparator: '',
-                                thousandSeparator: '.',
-                                precision: 0)
-                            .text,
-                        MoneyMaskedTextController(
-                                initialValue:
-                                    snapshot.data[index]['negative'].toDouble(),
-                                decimalSeparator: '',
-                                thousandSeparator: '.',
-                                precision: 0)
-                            .text,
-                        MoneyMaskedTextController(
-                                initialValue:
-                                    snapshot.data[index]['death'].toDouble(),
-                                decimalSeparator: '',
-                                thousandSeparator: '.',
-                                precision: 0)
-                            .text,
-                        snapshot.data[index]['date'].toString(),
-                        context);
+                    return getDataDay(snapshot, index);
                   },
                 ));
           else {
@@ -139,7 +202,7 @@ class _MyAppState extends State<MyApp> {
                             statesWG('UK', 2, context),
                             statesWG('IT', 3, context),
                             statesWG('CH', 4, context),
-                            statesWG('JK', 5, context),
+                            statesWG('JP', 5, context),
                           ],
                         ),
                       )
@@ -157,15 +220,34 @@ class _MyAppState extends State<MyApp> {
 }
 
 // Widget case
-Widget covidWG(String day, String pos, String neg, String death, String pathURL,
+Widget covidWG(
+    List<String> keys,
+    int index,
+    String state,
+    String day,
+    String pos,
+    String neg,
+    String death,
+    String pathURL,
     BuildContext context) {
   return GestureDetector(
-    onTap: () => Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => DetailsCovidWG(
-        path: pathURL,
-        date: day,
-      ),
-    )),
+    onTap: () => state == 'US'
+        ? Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => DetailsCovidWG(
+              path: 'https://api.covidtracking.com/v1/us/' + pathURL + '.json',
+              date: day,
+              state: state,
+            ),
+          ))
+        : Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => DetailsCovidWG(
+              path:
+                  'https://api.apify.com/v2/datasets/K1mXdufnpvr53AFk6/items?format=json&clean=1',
+              date: day,
+              index: index,
+              state: state,
+            ),
+          )),
     child: Card(
       color: Color.fromRGBO(25, 25, 25, 1),
       child: Container(
@@ -196,7 +278,7 @@ Widget covidWG(String day, String pos, String neg, String death, String pathURL,
                             fontSize: 17, fontWeight: FontWeight.bold),
                         children: [
                           TextSpan(
-                              text: 'Positive\n',
+                              text: '${keys[0]}\n',
                               style: TextStyle(color: Colors.white70)),
                           TextSpan(
                               text: pos, style: TextStyle(color: Colors.green))
@@ -208,7 +290,7 @@ Widget covidWG(String day, String pos, String neg, String death, String pathURL,
                             fontSize: 17, fontWeight: FontWeight.bold),
                         children: [
                           TextSpan(
-                              text: 'Negative\n',
+                              text: '${keys[1]}\n',
                               style: TextStyle(
                                 color: Colors.white70,
                               )),
@@ -225,7 +307,7 @@ Widget covidWG(String day, String pos, String neg, String death, String pathURL,
                             fontSize: 17, fontWeight: FontWeight.bold),
                         children: [
                           TextSpan(
-                              text: 'Death\n',
+                              text: '${keys[2]}\n',
                               style: TextStyle(color: Colors.white70)),
                           TextSpan(
                               text: death,
