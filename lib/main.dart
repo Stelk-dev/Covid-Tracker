@@ -2,7 +2,6 @@ import 'package:Covid_Tracking/covidPageDetails.dart';
 import 'package:flutter/material.dart';
 import 'trackingCovid.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
-// Aggiornare metodo salvataggio data se è uguale
 
 void main() {
   runApp(MaterialApp(
@@ -101,6 +100,7 @@ class _MyAppState extends State<MyApp> {
                   precision: 0)
               .text,
           snapshot.data[index]['date'].toString(),
+          [],
           context);
     else if (statesSelect == 2) {
       index = snapshot.data.length - index - 1;
@@ -143,6 +143,69 @@ class _MyAppState extends State<MyApp> {
                           precision: 0)
                       .text,
                   'K1mXdufnpvr53AFk6',
+                  [
+                    [
+                      'Daily\nTested',
+                      snapshot.data[index]['dailytested'],
+                      Colors.grey
+                    ],
+                    [
+                      'Daily\nConfirmed',
+                      snapshot.data[index]['dailyConfirmed'],
+                      Colors.redAccent
+                    ],
+                    [
+                      'England\nConfirmed',
+                      snapshot.data[index]['englandConfirmed'],
+                      Colors.green
+                    ],
+                    [
+                      'England\nDeceased',
+                      snapshot.data[index]['englandDeceased'],
+                      Colors.tealAccent
+                    ],
+                    [
+                      'Scotland\nConfirmed',
+                      snapshot.data[index]['scotlandConfirmed'],
+                      Colors.teal
+                    ],
+                    [
+                      'Scotland\nDeceased',
+                      snapshot.data[index]['scotlandDeceased'],
+                      Colors.teal
+                    ],
+                    [
+                      'Wales\nConfirmed',
+                      snapshot.data[index]['walesConfirmed'],
+                      Colors.green
+                    ],
+                    [
+                      'Wales\nDeceased',
+                      snapshot.data[index]['walesDeceased'],
+                      Colors.greenAccent[400]
+                    ],
+                    [
+                      'Nothen Ireland\nConfirmed',
+                      snapshot.data[index]['northenIrelandConfirmed'],
+                      Colors.deepOrangeAccent
+                    ],
+                    [
+                      'Nothen Ireland\nDeceased',
+                      snapshot.data[index]['northenIrelandDeceased'],
+                      Colors.orangeAccent
+                    ],
+                    [
+                      'Tested',
+                      snapshot.data[index]['tested'],
+                      Colors.deepOrangeAccent
+                    ],
+                    [
+                      'Positive',
+                      snapshot.data[index]['infected'],
+                      Colors.green
+                    ],
+                    ['Death', snapshot.data[index]['deceased'], Colors.purple],
+                  ],
                   context)
               : Container()
           : Container();
@@ -180,6 +243,40 @@ class _MyAppState extends State<MyApp> {
                       precision: 0)
                   .text,
               'CUdKmb25Z3HjkoDiN',
+              [
+                ['Tamponi', snapshot.data[index]['tamponi'], Colors.green],
+                [
+                  'Total\nCases',
+                  snapshot.data[index]['totalCases'],
+                  Colors.lightBlueAccent
+                ],
+                [
+                  'Positive',
+                  snapshot.data[index]['totalPositive'],
+                  Colors.redAccent
+                ],
+                [
+                  'New\nPositive',
+                  snapshot.data[index]['newPositive'],
+                  Colors.lightGreenAccent
+                ],
+                ['Death', snapshot.data[index]['deceased'], Colors.purple],
+                [
+                  'Total\nHospitalized',
+                  snapshot.data[index]['totalHospitalized'],
+                  Colors.blueGrey
+                ],
+                [
+                  'Insulation\nHome',
+                  snapshot.data[index]['homeInsulation'],
+                  Colors.brown
+                ],
+                [
+                  'Recovered',
+                  snapshot.data[index]['dischargedHealed'],
+                  Colors.deepOrangeAccent
+                ],
+              ],
               context)
           : Container();
     } else if (statesSelect == 4) {
@@ -218,6 +315,31 @@ class _MyAppState extends State<MyApp> {
                       precision: 0)
                   .text,
               'LQHrXhGe0EhnCFeei',
+              [
+                [
+                  'Positive',
+                  int.parse(snapshot.data[index]['infected'].toString()),
+                  Colors.greenAccent
+                ],
+                [
+                  'Recovered',
+                  int.parse(snapshot.data[index]['recovered'].toString()),
+                  Colors.lightBlueAccent
+                ],
+                [
+                  'Death',
+                  int.parse(snapshot.data[index]['deceased'].toString()),
+                  Colors.redAccent
+                ],
+                [
+                  'New\nConfirmed',
+                  snapshot.data[index]['currentConfirmedCount'] != null
+                      ? int.parse(snapshot.data[index]['currentConfirmedCount']
+                          .toString())
+                      : snapshot.data[index]['activeCases'],
+                  Colors.lightGreenAccent
+                ]
+              ],
               context)
           : Container();
     } else if (statesSelect == 5) {
@@ -230,10 +352,10 @@ class _MyAppState extends State<MyApp> {
               dateSaved
           ? covidWG(
               [
-                  'Positive',
-                  snapshot.data[index]['recovered'] != null ? 'Recovered' : '',
-                  'Death'
-                ],
+                'Positive',
+                snapshot.data[index]['recovered'] != null ? 'Recovered' : '',
+                'Death'
+              ],
               index,
               'JP',
               snapshot.data[index]['lastUpdatedAtApify'].substring(0, 10),
@@ -259,6 +381,23 @@ class _MyAppState extends State<MyApp> {
                       precision: 0)
                   .text,
               'ugfJOQkPhQ0fvLYzN',
+              [
+                snapshot.data[index]['infectedByRegion'],
+                [
+                  ['Positive', snapshot.data[index]['infected'], Colors.green],
+                  [
+                    'Recovered',
+                    snapshot.data[index]['recovered'],
+                    Colors.redAccent
+                  ],
+                  ['Death', snapshot.data[index]['deceased'], Colors.purple],
+                  [
+                    'Tested',
+                    snapshot.data[index]['tested'],
+                    Colors.lightGreenAccent
+                  ]
+                ]
+              ],
               context)
           : Container();
     }
@@ -343,6 +482,7 @@ Widget covidWG(
     String neg,
     String death,
     String pathURL,
+    List data,
     BuildContext context) {
   return GestureDetector(
     onTap: () => state == 'US'
@@ -361,6 +501,7 @@ Widget covidWG(
               date: day,
               index: index,
               state: state,
+              data: data,
             ),
           )),
     child: Card(
