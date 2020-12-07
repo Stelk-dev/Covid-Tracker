@@ -17,7 +17,6 @@ class _DetailsCovidWGState extends State<DetailsCovidWG> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     setState(() {
       url = 'https://api.covidtracking.com/v1/us/' + widget.path + '.json';
@@ -72,6 +71,7 @@ class _DetailsCovidWGState extends State<DetailsCovidWG> {
 
 Widget cardInGridView(String title, int number, Color color) {
   return Card(
+    color: Color.fromRGBO(25, 25, 25, 1),
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,

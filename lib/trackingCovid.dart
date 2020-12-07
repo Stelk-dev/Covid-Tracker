@@ -1,8 +1,8 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 
-Future getCovidData() async {
-  final data = await http.get('https://api.covidtracking.com/v1/us/daily.json');
+Future getCovidData(String url) async {
+  final data = await http.get(url);
   return convert.jsonDecode(data.body);
 }
 
