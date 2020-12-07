@@ -15,6 +15,45 @@ class DetailsCovidWG extends StatefulWidget {
 }
 
 class _DetailsCovidWGState extends State<DetailsCovidWG> {
+  List<Widget> japanRegion(AsyncSnapshot<dynamic> snapshot) {
+    print(widget.index);
+    if (snapshot.data[widget.index]['infectedByRegion'].length < 1) {
+      return [
+        cardInGridView('Positive', snapshot.data[widget.index]['infected'],
+            Colors.greenAccent),
+        cardInGridView('Recovered', snapshot.data[widget.index]['recovered'],
+            Colors.lightBlueAccent),
+        cardInGridView(
+            'Death', snapshot.data[widget.index]['deceased'], Colors.purple),
+        cardInGridView('Tested', snapshot.data[widget.index]['tested'],
+            Colors.lightGreenAccent),
+      ];
+    } else {
+      return [
+        cardInGridView('Positive', snapshot.data[widget.index]['infected'],
+            Colors.greenAccent),
+        cardInGridView(
+            'Death',
+            snapshot.data[widget.index]['deceased'] != null
+                ? snapshot.data[widget.index]['deceased']
+                : 0,
+            Colors.purple),
+        for (int i = 0;
+            i < snapshot.data[widget.index]['infectedByRegion'].length;
+            i++)
+          cardInGridView(
+              snapshot.data[widget.index]['infectedByRegion'][i]['region'],
+              snapshot.data[widget.index]['infectedByRegion'][i]
+                          ['infectedCount'] !=
+                      null
+                  ? snapshot.data[widget.index]['infectedByRegion'][i]
+                      ['infectedCount']
+                  : 0,
+              Colors.lightBlueAccent)
+      ];
+    }
+  }
+
   Widget getDayDetails(AsyncSnapshot<dynamic> snapshot) {
     if (widget.state == 'US')
       return GridView.count(
@@ -53,7 +92,7 @@ class _DetailsCovidWGState extends State<DetailsCovidWG> {
             cardInGridView(
                 'Daily\nConfirmed',
                 snapshot.data[widget.index]['dailyConfirmed'],
-                Colors.amberAccent),
+                Colors.redAccent),
           //
           if (snapshot.data[widget.index]['dailytested'] is int)
             cardInGridView('Daily\nTested',
@@ -102,17 +141,83 @@ class _DetailsCovidWGState extends State<DetailsCovidWG> {
           //
           if (snapshot.data[widget.index]['tested'] is int)
             cardInGridView('Tested', snapshot.data[widget.index]['tested'],
-                Colors.purpleAccent),
+                Colors.deepOrangeAccent),
           //
           if (snapshot.data[widget.index]['infected'] is int)
             cardInGridView('Positive', snapshot.data[widget.index]['infected'],
                 Colors.greenAccent),
           //
           if (snapshot.data[widget.index]['deceased'] is int)
-            cardInGridView('Deceased', snapshot.data[widget.index]['deceased'],
-                Colors.redAccent),
+            cardInGridView('Death', snapshot.data[widget.index]['deceased'],
+                Colors.purple),
         ],
       );
+    else if (widget.state == 'IT')
+      return GridView.count(
+        padding: EdgeInsets.all(5),
+        mainAxisSpacing: 2,
+        crossAxisSpacing: 2,
+        crossAxisCount: 2,
+        children: [
+          cardInGridView('Tamponi', snapshot.data[widget.index]['tamponi'],
+              Colors.greenAccent),
+          cardInGridView(
+              'Total\nCases',
+              snapshot.data[widget.index]['totalCases'],
+              Colors.lightBlueAccent),
+          cardInGridView('Total\nPositive',
+              snapshot.data[widget.index]['totalPositive'], Colors.greenAccent),
+          cardInGridView(
+              'New\nPositive',
+              snapshot.data[widget.index]['newPositive'],
+              Colors.lightGreenAccent),
+          cardInGridView('Deceased', snapshot.data[widget.index]['deceased'],
+              Colors.redAccent),
+          cardInGridView(
+              'Total\nHospitalized',
+              snapshot.data[widget.index]['totalHospitalized'],
+              Colors.blueGrey),
+          cardInGridView('Insulation\nHome',
+              snapshot.data[widget.index]['homeInsulation'], Colors.brown),
+          cardInGridView(
+              'Recovered',
+              snapshot.data[widget.index]['dischargedHealed'],
+              Colors.deepOrangeAccent),
+        ],
+      );
+    else if (widget.state == 'CH')
+      return GridView.count(
+        padding: EdgeInsets.all(5),
+        mainAxisSpacing: 2,
+        crossAxisSpacing: 2,
+        crossAxisCount: 2,
+        children: [
+          cardInGridView(
+              'Positive',
+              int.parse(snapshot.data[widget.index]['infected'].toString()),
+              Colors.greenAccent),
+          cardInGridView(
+              'Recovered',
+              int.parse(snapshot.data[widget.index]['recovered'].toString()),
+              Colors.lightBlueAccent),
+          cardInGridView(
+              'Death',
+              int.parse(snapshot.data[widget.index]['deceased'].toString()),
+              Colors.redAccent),
+          cardInGridView(
+              'New\nConfirmed',
+              int.parse(snapshot.data[widget.index]['currentConfirmedCount']
+                  .toString()),
+              Colors.lightGreenAccent),
+        ],
+      );
+    else if (widget.state == 'JP')
+      return GridView.count(
+          padding: EdgeInsets.all(5),
+          mainAxisSpacing: 2,
+          crossAxisSpacing: 2,
+          crossAxisCount: 2,
+          children: japanRegion(snapshot));
   }
 
   @override

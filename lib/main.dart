@@ -2,6 +2,7 @@ import 'package:Covid_Tracking/covidPageDetails.dart';
 import 'package:flutter/material.dart';
 import 'trackingCovid.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
+// Aggiornare metodo salvataggio data se è uguale
 
 void main() {
   runApp(MaterialApp(
@@ -21,7 +22,6 @@ class _MyAppState extends State<MyApp> {
   String url = 'https://api.covidtracking.com/v1/us/daily.json';
   String dateSaved =
       ''; // Data precedente per non stampare lo stesso giorno più volte
-
   Widget statesWG(String title, int index, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
@@ -111,9 +111,8 @@ class _MyAppState extends State<MyApp> {
           index < 45) {
         return Container();
       }
-      dateSaved = index >= 1
-          ? snapshot.data[index - 1]['lastUpdatedAtApify'].substring(0, 10)
-          : '';
+      dateSaved =
+          snapshot.data[index - 1]['lastUpdatedAtApify'].substring(0, 10);
       return snapshot.data[index]['lastUpdatedAtApify'].substring(0, 10) !=
               dateSaved
           ? snapshot.data[index]['infected'] != null
@@ -143,9 +142,124 @@ class _MyAppState extends State<MyApp> {
                           thousandSeparator: '.',
                           precision: 0)
                       .text,
-                  '',
+                  'K1mXdufnpvr53AFk6',
                   context)
               : Container()
+          : Container();
+    } else if (statesSelect == 3) {
+      index = snapshot.data.length - index - 1;
+      dateSaved = index >= 1
+          ? snapshot.data[index - 1]['lastUpdatedAtApify'].substring(0, 10)
+          : '';
+      if (!(snapshot.data[index]['totalPositive'] is int) ||
+          !(snapshot.data[index]['totalCases'] is int)) return Container();
+      return snapshot.data[index]['lastUpdatedAtApify'].substring(0, 10) !=
+              dateSaved
+          ? covidWG(
+              ['Tamponi', 'Positive', 'Death'],
+              index,
+              'IT',
+              snapshot.data[index]['lastUpdatedAtApify'].substring(0, 10),
+              MoneyMaskedTextController(
+                      initialValue: snapshot.data[index]['tamponi'].toDouble(),
+                      decimalSeparator: '',
+                      thousandSeparator: '.',
+                      precision: 0)
+                  .text,
+              MoneyMaskedTextController(
+                      initialValue:
+                          snapshot.data[index]['totalPositive'].toDouble(),
+                      decimalSeparator: '',
+                      thousandSeparator: '.',
+                      precision: 0)
+                  .text,
+              MoneyMaskedTextController(
+                      initialValue: snapshot.data[index]['deceased'].toDouble(),
+                      decimalSeparator: '',
+                      thousandSeparator: '.',
+                      precision: 0)
+                  .text,
+              'CUdKmb25Z3HjkoDiN',
+              context)
+          : Container();
+    } else if (statesSelect == 4) {
+      index = snapshot.data.length - index - 1;
+      if (index < 58 || index < 0 || (index >= 239 && index <= 251))
+        return Container();
+      dateSaved =
+          snapshot.data[index - 1]['lastUpdatedAtApify'].substring(0, 10);
+      //Data corrupt
+      return snapshot.data[index]['lastUpdatedAtApify'].substring(0, 10) !=
+              dateSaved
+          ? covidWG(
+              ['Positive', 'Recovered', 'Death'],
+              index,
+              'CH',
+              snapshot.data[index]['lastUpdatedAtApify'].substring(0, 10),
+              MoneyMaskedTextController(
+                      initialValue: double.parse(
+                          snapshot.data[index]['infected'].toString()),
+                      decimalSeparator: '',
+                      thousandSeparator: '.',
+                      precision: 0)
+                  .text,
+              MoneyMaskedTextController(
+                      initialValue: double.parse(
+                          snapshot.data[index]['recovered'].toString()),
+                      decimalSeparator: '',
+                      thousandSeparator: '.',
+                      precision: 0)
+                  .text,
+              MoneyMaskedTextController(
+                      initialValue: double.parse(
+                          snapshot.data[index]['deceased'].toString()),
+                      decimalSeparator: '',
+                      thousandSeparator: '.',
+                      precision: 0)
+                  .text,
+              'LQHrXhGe0EhnCFeei',
+              context)
+          : Container();
+    } else if (statesSelect == 5) {
+      index = snapshot.data.length - index - 1;
+      if (index < 19) return Container();
+      dateSaved =
+          snapshot.data[index - 1]['lastUpdatedAtApify'].substring(0, 10);
+      //Data corrupt
+      return snapshot.data[index]['lastUpdatedAtApify'].substring(0, 10) !=
+              dateSaved
+          ? covidWG(
+              [
+                  'Positive',
+                  snapshot.data[index]['recovered'] != null ? 'Recovered' : '',
+                  'Death'
+                ],
+              index,
+              'JP',
+              snapshot.data[index]['lastUpdatedAtApify'].substring(0, 10),
+              MoneyMaskedTextController(
+                      initialValue: snapshot.data[index]['infected'].toDouble(),
+                      decimalSeparator: '',
+                      thousandSeparator: '.',
+                      precision: 0)
+                  .text,
+              snapshot.data[index]['recovered'] != null
+                  ? MoneyMaskedTextController(
+                          initialValue:
+                              snapshot.data[index]['recovered'].toDouble(),
+                          decimalSeparator: '',
+                          thousandSeparator: '.',
+                          precision: 0)
+                      .text
+                  : '',
+              MoneyMaskedTextController(
+                      initialValue: snapshot.data[index]['deceased'].toDouble(),
+                      decimalSeparator: '',
+                      thousandSeparator: '.',
+                      precision: 0)
+                  .text,
+              'ugfJOQkPhQ0fvLYzN',
+              context)
           : Container();
     }
   }
@@ -241,8 +355,9 @@ Widget covidWG(
           ))
         : Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => DetailsCovidWG(
-              path:
-                  'https://api.apify.com/v2/datasets/K1mXdufnpvr53AFk6/items?format=json&clean=1',
+              path: 'https://api.apify.com/v2/datasets/' +
+                  pathURL +
+                  '/items?format=json&clean=1',
               date: day,
               index: index,
               state: state,
