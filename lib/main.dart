@@ -1,4 +1,5 @@
 import 'package:Covid_Tracking/covidPageDetails.dart';
+import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/material.dart';
 import 'trackingCovid.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
@@ -21,6 +22,10 @@ class _MyAppState extends State<MyApp> {
   String url = 'https://api.covidtracking.com/v1/us/daily.json';
   String dateSaved =
       ''; // Data precedente per non stampare lo stesso giorno più volte
+  //Ads id
+  String adMobAppId = 'ca-app-pub-3103876033452961~7341719656'; // Only android
+  String adMobBannerId = 'ca-app-pub-3103876033452961/9121705188';
+
   Widget statesWG(String title, int index, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
@@ -404,6 +409,13 @@ class _MyAppState extends State<MyApp> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    Admob.initialize();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -412,61 +424,76 @@ class _MyAppState extends State<MyApp> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
-      body: FutureBuilder(
-        future: getCovidData(url),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done)
-            return Scrollbar(
-                radius: Radius.circular(10),
-                child: ListView.builder(
-                  itemCount: snapshot.data.length,
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 7),
-                  itemBuilder: (context, index) {
-                    if (index == 0)
-                      return Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      body: Stack(
+        children: [
+          FutureBuilder(
+            future: getCovidData(url),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done)
+                return Scrollbar(
+                    radius: Radius.circular(10),
+                    child: ListView.builder(
+                      itemCount: snapshot.data.length,
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+                      itemBuilder: (context, index) {
+                        if (index == 0)
+                          return Column(
                             children: [
-                              statesWG('US', 1, context),
-                              statesWG('UK', 2, context),
-                              statesWG('IT', 3, context),
-                              statesWG('CH', 4, context),
-                              statesWG('JP', 5, context),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  statesWG('US', 1, context),
+                                  statesWG('UK', 2, context),
+                                  statesWG('IT', 3, context),
+                                  statesWG('CH', 4, context),
+                                  statesWG('JP', 5, context),
+                                ],
+                              ),
+                              getDataDay(snapshot, index)
                             ],
-                          ),
-                          getDataDay(snapshot, index)
-                        ],
-                      );
-                    return getDataDay(snapshot, index);
-                  },
-                ));
-          else {
-            return Stack(
+                          );
+                        return getDataDay(snapshot, index);
+                      },
+                    ));
+              else {
+                return Stack(
+                  children: [
+                    snapshot.hasData
+                        ? Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 7),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                statesWG('US', 1, context),
+                                statesWG('UK', 2, context),
+                                statesWG('IT', 3, context),
+                                statesWG('CH', 4, context),
+                                statesWG('JP', 5, context),
+                              ],
+                            ),
+                          )
+                        : Container(),
+                    Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ],
+                );
+              }
+            },
+          ),
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                snapshot.hasData
-                    ? Padding(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 8, vertical: 7),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            statesWG('US', 1, context),
-                            statesWG('UK', 2, context),
-                            statesWG('IT', 3, context),
-                            statesWG('CH', 4, context),
-                            statesWG('JP', 5, context),
-                          ],
-                        ),
-                      )
-                    : Container(),
-                Center(
-                  child: CircularProgressIndicator(),
-                ),
+                AdmobBanner(
+                    adUnitId: adMobBannerId,
+                    adSize: AdmobBannerSize.FULL_BANNER)
               ],
-            );
-          }
-        },
+            ),
+          ) //Ads
+        ],
       ),
     );
   }
