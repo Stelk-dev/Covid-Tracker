@@ -7,8 +7,12 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="Covid_Tracking"
+        android:label="Covid Tracker"
         android:icon="@mipmap/ic_launcher">
+          <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3103876033452961~7341719656"
+          />
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
@@ -32,10 +36,6 @@
             <meta-data
               android:name="io.flutter.embedding.android.SplashScreenDrawable"
               android:resource="@drawable/launch_background"
-              />
-            <meta-data
-              android:name="com.google.android.gms.ads.APPLICATION_ID"
-              android:value="ca-app-pub-3103876033452961~7341719656"
               />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

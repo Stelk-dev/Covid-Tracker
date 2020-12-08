@@ -1,5 +1,5 @@
 import 'package:Covid_Tracking/covidPageDetails.dart';
-import 'package:admob_flutter/admob_flutter.dart';
+import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
 import 'trackingCovid.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
@@ -22,9 +22,26 @@ class _MyAppState extends State<MyApp> {
   String url = 'https://api.covidtracking.com/v1/us/daily.json';
   String dateSaved =
       ''; // Data precedente per non stampare lo stesso giorno più volte
+
   //Ads id
   String adMobAppId = 'ca-app-pub-3103876033452961~7341719656'; // Only android
   String adMobBannerId = 'ca-app-pub-3103876033452961/9121705188';
+
+  BannerAd myBanner = BannerAd(
+    // Replace the testAdUnitId with an ad unit id from the AdMob dash.
+    adUnitId: 'ca-app-pub-3103876033452961/9121705188',
+    size: AdSize.banner,
+    targetingInfo: MobileAdTargetingInfo(
+      keywords: <String>['wallpapers', 'beautiful apps'],
+      contentUrl: 'https://flutter.io',
+      birthday: DateTime.now(),
+      childDirected: false,
+      testDevices: <String>[], // Android emulators are considered test devices
+    ),
+    listener: (MobileAdEvent event) {
+      print("BannerAd event is $event");
+    },
+  );
 
   Widget statesWG(String title, int index, BuildContext context) {
     return Padding(
@@ -412,7 +429,11 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    Admob.initialize();
+    FirebaseAdMob.instance
+        .initialize(appId: 'ca-app-pub-3103876033452961~7341719656')
+        .then((value) => myBanner
+          ..load()
+          ..show());
   }
 
   @override
@@ -486,11 +507,7 @@ class _MyAppState extends State<MyApp> {
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                AdmobBanner(
-                    adUnitId: adMobBannerId,
-                    adSize: AdmobBannerSize.FULL_BANNER)
-              ],
+              children: [],
             ),
           ) //Ads
         ],
@@ -499,7 +516,7 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-// Widget case
+// Widget cases
 Widget covidWG(
     List<String> keys,
     int index,
@@ -512,25 +529,42 @@ Widget covidWG(
     List data,
     BuildContext context) {
   return GestureDetector(
-    onTap: () => state == 'US'
-        ? Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => DetailsCovidWG(
-              path: 'https://api.covidtracking.com/v1/us/' + pathURL + '.json',
-              date: day,
-              state: state,
-            ),
-          ))
-        : Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => DetailsCovidWG(
-              path: 'https://api.apify.com/v2/datasets/' +
-                  pathURL +
-                  '/items?format=json&clean=1',
-              date: day,
-              index: index,
-              state: state,
-              data: data,
-            ),
-          )),
+    onTap: () {
+      // InterstitialAd(
+      //   adUnitId: InterstitialAd.testAdUnitId,
+      //   targetingInfo: MobileAdTargetingInfo(
+      //     keywords: <String>['wallpapers', 'beautiful apps'],
+      //     contentUrl: 'https://flutter.io',
+      //     birthday: DateTime.now(),
+      //     childDirected: false,
+      //     testDevices: <
+      //         String>[], // Android emulators are considered test devices
+      //   ),
+      //   listener: (event) => print(event),
+      // )
+      //   ..load()
+      //   ..show();
+      state == 'US'
+          ? Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => DetailsCovidWG(
+                path:
+                    'https://api.covidtracking.com/v1/us/' + pathURL + '.json',
+                date: day,
+                state: state,
+              ),
+            ))
+          : Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => DetailsCovidWG(
+                path: 'https://api.apify.com/v2/datasets/' +
+                    pathURL +
+                    '/items?format=json&clean=1',
+                date: day,
+                index: index,
+                state: state,
+                data: data,
+              ),
+            ));
+    },
     child: Card(
       color: Color.fromRGBO(25, 25, 25, 1),
       child: Container(
